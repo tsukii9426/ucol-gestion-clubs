@@ -1,0 +1,12 @@
+# Credenciales y configuración local
+config.php
+
+# Logs con datos sensibles (correos, tokens)
+logs/
+
+# Archivo de prueba — eliminar antes de producción
+test_correo.php
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db

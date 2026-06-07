@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Nuevo club en borrador — {{NOMBRE_PLANTEL}}</title>
+    <style>
+        body, table, td, a { -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+        img  { -ms-interpolation-mode:bicubic; border:0; outline:none; text-decoration:none; }
+        body { margin:0 !important; padding:0 !important; background-color:#f0f3fa; }
+        @media only screen and (max-width:600px) {
+            .email-container { width:100% !important; }
+            .pad-sm { padding:24px 20px !important; }
+            .btn-table { width:100% !important; }
+        }
+    </style>
+</head>
+<body style="margin:0;padding:0;background-color:#f0f3fa;font-family:'Segoe UI',Arial,sans-serif;">
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f0f3fa;">
+<tr>
+<td align="center" style="padding:32px 16px 40px;">
+
+    <table class="email-container" role="presentation" width="580" cellspacing="0" cellpadding="0" border="0" style="max-width:580px;width:100%;">
+
+        <!-- ── LOGO ────────────────────────── -->
+        <tr>
+            <td align="center" style="padding-bottom:20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td style="background-color:#1b2d54;border-radius:50%;width:48px;height:48px;text-align:center;vertical-align:middle;">
+                        <span style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;font-weight:700;color:#ffffff;line-height:48px;">UdeC</span>
+                    </td>
+                    <td style="padding-left:12px;">
+                        <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:700;color:#1b2d54;line-height:1.2;">Clubes Estudiantiles</div>
+                        <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:11px;color:#7a8099;text-transform:uppercase;letter-spacing:1px;margin-top:2px;">{{NOMBRE_PLANTEL}} · Universidad de Colima</div>
+                    </td>
+                </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- ── CARD ────────────────────────── -->
+        <tr>
+            <td style="background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(27,45,84,0.13);">
+
+                <!-- Header degradado -->
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td style="background:linear-gradient(135deg,#1b2d54 0%,#243567 100%);padding:36px 40px 32px;border-radius:16px 16px 0 0;">
+                        <!-- Ícono -->
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:20px;">
+                        <tr>
+                            <td style="background-color:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.25);border-radius:14px;width:52px;height:52px;text-align:center;vertical-align:middle;">
+                                <span style="font-size:24px;line-height:52px;display:block;">📋</span>
+                            </td>
+                        </tr>
+                        </table>
+                        <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:22px;font-weight:700;color:#ffffff;margin-bottom:8px;">
+                            Nuevo club en borrador
+                        </div>
+                        <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:14px;color:rgba(255,255,255,0.7);">
+                            Un encargado ha registrado un club en <strong style="color:#ffffff;">{{NOMBRE_PLANTEL}}</strong>
+                        </div>
+                    </td>
+                </tr>
+                </table>
+
+                <!-- Cuerpo -->
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td class="pad-sm" style="padding:32px 40px;">
+
+                        <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:15px;color:#3d4260;margin:0 0 6px;">
+                            Hola, <strong style="color:#1e2340;">Administrador de {{NOMBRE_PLANTEL}}</strong> 👋
+                        </p>
+                        <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:14px;color:#7a8099;margin:0 0 28px;line-height:1.6;">
+                            El encargado <strong style="color:#1e2340;">{{NOMBRE_ENCARGADO}}</strong> acaba de registrar un nuevo club.
+                            El club permanecerá en estado <strong style="color:#1b2d54;">Borrador</strong> hasta que el encargado
+                            lo envíe a revisión y tú lo apruebes.
+                        </p>
+
+                        <!-- Tarjeta de datos del club -->
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                               style="background-color:#f7f8fc;border-radius:10px;border:1px solid #eef0f6;margin-bottom:28px;">
+                        <tr>
+                            <td style="padding:20px 22px 4px;">
+                                <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#7a8099;margin-bottom:14px;">
+                                    Datos del club
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Nombre del club -->
+                        <tr><td style="padding:0 22px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-bottom:1px solid #eef0f6;">
+                            <tr>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#7a8099;width:140px;vertical-align:top;">Club</td>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;font-weight:700;color:#1e2340;">{{NOMBRE_CLUB}}</td>
+                            </tr>
+                            </table>
+                        </td></tr>
+
+                        <!-- Encargado -->
+                        <tr><td style="padding:0 22px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-bottom:1px solid #eef0f6;">
+                            <tr>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#7a8099;width:140px;vertical-align:top;">Encargado</td>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#1e2340;">
+                                    {{NOMBRE_ENCARGADO}}
+                                    <span style="font-size:11px;color:#7a8099;font-weight:400;"> — N.° {{NUM_TRABAJADOR}}</span>
+                                </td>
+                            </tr>
+                            </table>
+                        </td></tr>
+
+                        <!-- Descripción -->
+                        <tr><td style="padding:0 22px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-bottom:1px solid #eef0f6;">
+                            <tr>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#7a8099;width:140px;vertical-align:top;">Descripción</td>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#1e2340;line-height:1.5;">{{DESCRIPCION}}</td>
+                            </tr>
+                            </table>
+                        </td></tr>
+
+                        <!-- Semestre -->
+                        <tr><td style="padding:0 22px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-bottom:1px solid #eef0f6;">
+                            <tr>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#7a8099;width:140px;">Semestre</td>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#1e2340;">{{SEMESTRE}}</td>
+                            </tr>
+                            </table>
+                        </td></tr>
+
+                        <!-- Fechas -->
+                        <tr><td style="padding:0 22px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-bottom:1px solid #eef0f6;">
+                            <tr>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#7a8099;width:140px;">Período</td>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#1e2340;">{{FECHA_INICIO}} &ndash; {{FECHA_FIN}}</td>
+                            </tr>
+                            </table>
+                        </td></tr>
+
+                        <!-- Horarios -->
+                        <tr><td style="padding:0 22px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-bottom:1px solid #eef0f6;">
+                            <tr>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#7a8099;width:140px;vertical-align:top;">Horarios</td>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#1e2340;line-height:1.7;">{{HORARIOS_HTML}}</td>
+                            </tr>
+                            </table>
+                        </td></tr>
+
+                        <!-- Límite de alumnos -->
+                        <tr><td style="padding:0 22px 4px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#7a8099;width:140px;">Límite de alumnos</td>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#1e2340;">{{LIMITE}} alumnos</td>
+                            </tr>
+                            </table>
+                        </td></tr>
+
+                        </table><!-- /tarjeta datos -->
+
+                        <!-- Nota informativa -->
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                               style="background-color:#eef4ff;border:1px solid #c5d8f5;border-left:3px solid #4a7fd4;border-radius:8px;margin-bottom:28px;">
+                        <tr>
+                            <td style="padding:14px 16px;">
+                                <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#1e3a6e;margin:0;line-height:1.55;">
+                                    ℹ️ &nbsp;El club aparecerá en tu panel como <strong>Borrador</strong>.
+                                    Recibirás una nueva notificación cuando el encargado lo envíe a aprobación.
+                                </p>
+                            </td>
+                        </tr>
+                        </table>
+
+                        <!-- Botón CTA -->
+                        <table class="btn-table" role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 auto 28px;">
+                        <tr>
+                            <td style="border-radius:8px;background-color:#1b2d54;">
+                                <a href="{{LINK_DASHBOARD}}" target="_blank"
+                                   style="display:inline-block;padding:14px 36px;font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:8px;letter-spacing:.3px;">
+                                    Ir al panel de control →
+                                </a>
+                            </td>
+                        </tr>
+                        </table>
+
+                        <!-- Link alternativo -->
+                        <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:12px;color:#7a8099;text-align:center;margin:0 0 4px;">
+                            Si el botón no funciona, copia este enlace en tu navegador:
+                        </p>
+                        <p style="font-family:Courier,monospace;font-size:11px;color:#4a7fd4;text-align:center;word-break:break-all;margin:0 0 28px;">
+                            {{LINK_DASHBOARD}}
+                        </p>
+
+                        <!-- Divider -->
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:20px;">
+                        <tr><td style="border-top:1px solid #eef0f6;"></td></tr>
+                        </table>
+
+                        <!-- Nota de seguridad -->
+                        <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:12.5px;color:#7a8099;line-height:1.6;margin:0;">
+                            🔒 &nbsp;Este aviso fue generado automáticamente porque un encargado registró un nuevo club
+                            en tu plantel. Si no reconoces al encargado, revisa el panel y contacta al área de sistemas.
+                        </p>
+
+                    </td>
+                </tr>
+                </table>
+
+            </td>
+        </tr>
+
+        <!-- ── FOOTER ────────────────────────── -->
+        <tr>
+            <td style="padding:24px 0 0;text-align:center;">
+                <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:12px;color:#7a8099;line-height:1.7;margin:0;">
+                    Este correo fue enviado a <strong style="color:#3d4260;">{{CORREO_PLANTEL}}</strong><br>
+                    porque se registró un nuevo club en tu plantel.
+                </p>
+                <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:11px;color:#aab0c4;margin:12px 0 0;">
+                    © {{AÑO}} Universidad de Colima · {{NOMBRE_PLANTEL}} · Sistema de Clubes Estudiantiles<br>
+                    Manzanillo, Colima, México
+                </p>
+            </td>
+        </tr>
+
+    </table>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>

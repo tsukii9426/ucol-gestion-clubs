@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Solicitud de Encargado — Aprobación</title>
+    <style>
+        body, table, td, a { -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+        img  { -ms-interpolation-mode:bicubic; border:0; outline:none; text-decoration:none; }
+        body { margin:0 !important; padding:0 !important; background-color:#f0f3fa; }
+        @media only screen and (max-width:600px) {
+            .email-container { width:100% !important; }
+            .pad-sm { padding:24px 20px !important; }
+            .btn-table { width:100% !important; }
+            .btn-cell  { display:block !important; width:100% !important; text-align:center !important; }
+        }
+    </style>
+</head>
+<body style="margin:0;padding:0;background-color:#f0f3fa;font-family:'Segoe UI',Arial,sans-serif;">
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f0f3fa;">
+<tr>
+<td align="center" style="padding:32px 16px 40px;">
+
+    <table class="email-container" role="presentation" width="580" cellspacing="0" cellpadding="0" border="0" style="max-width:580px;width:100%;">
+
+        <!-- ── LOGO ────────────────────────── -->
+        <tr>
+            <td align="center" style="padding-bottom:20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td style="background-color:#1b2d54;border-radius:50%;width:48px;height:48px;text-align:center;vertical-align:middle;">
+                        <span style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;font-weight:700;color:#ffffff;line-height:48px;">UdeC</span>
+                    </td>
+                    <td style="padding-left:12px;">
+                        <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:700;color:#1b2d54;line-height:1.2;">Clubes Estudiantiles</div>
+                        <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:11px;color:#7a8099;text-transform:uppercase;letter-spacing:1px;margin-top:2px;">{{NOMBRE_PLANTEL}} · Universidad de Colima</div>
+                    </td>
+                </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- ── CARD ────────────────────────── -->
+        <tr>
+            <td style="background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(27,45,84,0.13);">
+
+                <!-- Header degradado -->
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td style="background:linear-gradient(135deg,#1b2d54 0%,#243567 100%);padding:36px 40px 32px;border-radius:16px 16px 0 0;">
+                        <!-- Ícono -->
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:20px;">
+                        <tr>
+                            <td style="background-color:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.25);border-radius:14px;width:52px;height:52px;text-align:center;vertical-align:middle;">
+                                <img src="https://img.icons8.com/ios/52/ffffff/approval.png" width="26" height="26" alt="" style="display:block;margin:13px auto;">
+                            </td>
+                        </tr>
+                        </table>
+                        <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:22px;font-weight:700;color:#ffffff;margin-bottom:8px;">
+                            Nueva solicitud de encargado
+                        </div>
+                        <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:14px;color:rgba(255,255,255,0.7);">
+                            Se requiere tu revisión y aprobación para {{NOMBRE_PLANTEL}}
+                        </div>
+                    </td>
+                </tr>
+                </table>
+
+                <!-- Cuerpo -->
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td class="pad-sm" style="padding:32px 40px;">
+
+                        <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:15px;color:#3d4260;margin:0 0 6px;">
+                            Hola, <strong style="color:#1e2340;">Administrador de {{NOMBRE_PLANTEL}}</strong> 👋
+                        </p>
+                        <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:14px;color:#7a8099;margin:0 0 28px;line-height:1.6;">
+                            La siguiente persona ha solicitado registrarse como encargado de club en su plantel.
+                            Por favor revisa los datos y decide si <strong style="color:#2e9e6e;">Aprobar</strong>
+                            o <strong style="color:#d94f4f;">Rechazar</strong> la solicitud.
+                        </p>
+
+                        <!-- Tarjeta de datos del solicitante -->
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                               style="background-color:#f7f8fc;border-radius:10px;border:1px solid #eef0f6;margin-bottom:28px;">
+                        <tr>
+                            <td style="padding:20px 22px 4px;">
+                                <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#7a8099;margin-bottom:14px;">
+                                    Datos del solicitante
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Tipo -->
+                        <tr><td style="padding:0 22px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-bottom:1px solid #eef0f6;">
+                            <tr>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#7a8099;width:130px;">Tipo</td>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;font-weight:700;color:#1e2340;">{{TIPO}}</td>
+                            </tr>
+                            </table>
+                        </td></tr>
+
+                        <!-- Nombre -->
+                        <tr><td style="padding:0 22px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-bottom:1px solid #eef0f6;">
+                            <tr>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#7a8099;width:130px;">Nombre completo</td>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;font-weight:700;color:#1e2340;">{{NOMBRE_COMPLETO}}</td>
+                            </tr>
+                            </table>
+                        </td></tr>
+
+                        <!-- Núm. trabajador -->
+                        <tr><td style="padding:0 22px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-bottom:1px solid #eef0f6;">
+                            <tr>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#7a8099;width:130px;">Núm. trabajador</td>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;font-weight:700;color:#1e2340;">{{NUM_TRABAJADOR}}</td>
+                            </tr>
+                            </table>
+                        </td></tr>
+
+                        <!-- Correo -->
+                        <tr><td style="padding:0 22px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-bottom:1px solid #eef0f6;">
+                            <tr>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#7a8099;width:130px;">Correo</td>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;font-weight:700;color:#1e2340;">{{CORREO_SOLICITANTE}}</td>
+                            </tr>
+                            </table>
+                        </td></tr>
+
+                        <!-- Teléfono -->
+                        <tr><td style="padding:0 22px 4px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#7a8099;width:130px;">Teléfono</td>
+                                <td style="padding:11px 0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;font-weight:700;color:#1e2340;">{{TELEFONO}}</td>
+                            </tr>
+                            </table>
+                        </td></tr>
+
+                        </table><!-- /tarjeta datos -->
+
+                        <!-- Aviso de expiración -->
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                               style="background-color:#fff8ee;border:1px solid #f5d8a0;border-left:3px solid #d47a20;border-radius:8px;margin-bottom:28px;">
+                        <tr>
+                            <td style="padding:14px 16px;">
+                                <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#7a4f10;margin:0;line-height:1.55;">
+                                    ⏱ &nbsp;Los botones de aprobación son válidos por <strong>24 horas</strong>.
+                                    Pasado ese tiempo, el solicitante deberá enviar una nueva solicitud.
+                                </p>
+                            </td>
+                        </tr>
+                        </table>
+
+                        <!-- Botones Aprobar / Rechazar -->
+                        <table class="btn-table" role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 auto 28px;">
+                        <tr>
+                            <!-- APROBAR -->
+                            <td class="btn-cell" style="padding-right:12px;">
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td style="border-radius:8px;background-color:#2e9e6e;">
+                                        <a href="{{LINK_APROBAR}}" target="_blank"
+                                           style="display:inline-block;padding:14px 30px;font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:8px;letter-spacing:.3px;">
+                                            ✓ &nbsp; Aprobar solicitud
+                                        </a>
+                                    </td>
+                                </tr>
+                                </table>
+                            </td>
+
+                            <!-- RECHAZAR -->
+                            <td class="btn-cell" style="padding-left:0;">
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td style="border-radius:8px;background-color:#d94f4f;">
+                                        <a href="{{LINK_RECHAZAR}}" target="_blank"
+                                           style="display:inline-block;padding:14px 30px;font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:8px;letter-spacing:.3px;">
+                                            ✕ &nbsp; Rechazar solicitud
+                                        </a>
+                                    </td>
+                                </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        </table>
+
+                        <!-- Links alternativos -->
+                        <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:12px;color:#7a8099;text-align:center;margin:0 0 4px;">
+                            Si los botones no funcionan, usa estos enlaces:
+                        </p>
+                        <p style="font-family:Courier,monospace;font-size:11px;color:#2e9e6e;text-align:center;word-break:break-all;margin:0 0 6px;">
+                            Aprobar: {{LINK_APROBAR}}
+                        </p>
+                        <p style="font-family:Courier,monospace;font-size:11px;color:#d94f4f;text-align:center;word-break:break-all;margin:0 0 28px;">
+                            Rechazar: {{LINK_RECHAZAR}}
+                        </p>
+
+                        <!-- Divider -->
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:20px;">
+                        <tr><td style="border-top:1px solid #eef0f6;"></td></tr>
+                        </table>
+
+                        <!-- Nota de seguridad -->
+                        <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:12.5px;color:#7a8099;line-height:1.6;margin:0;">
+                            🔒 &nbsp;Si no esperabas esta solicitud o la información no corresponde a alguien de tu institución,
+                            haz clic en <strong>Rechazar</strong> o simplemente ignora este correo.
+                        </p>
+
+                    </td>
+                </tr>
+                </table>
+
+            </td>
+        </tr>
+
+        <!-- ── FOOTER ────────────────────────── -->
+        <tr>
+            <td style="padding:24px 0 0;text-align:center;">
+                <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:12px;color:#7a8099;line-height:1.7;margin:0;">
+                    Este correo fue enviado a <strong style="color:#3d4260;">{{CORREO_PLANTEL}}</strong><br>
+                    porque se recibió una solicitud de registro como encargado.
+                </p>
+                <p style="font-family:'Segoe UI',Arial,sans-serif;font-size:11px;color:#aab0c4;margin:12px 0 0;">
+                    © {{AÑO}} Universidad de Colima · {{NOMBRE_PLANTEL}} · Sistema de Clubes Estudiantiles<br>
+                    Manzanillo, Colima, México
+                </p>
+            </td>
+        </tr>
+
+    </table>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>
