@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(& \"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root \"-pXiMaAl9426<3\" -e \"SET GLOBAL event_scheduler = ON;\")",
+      "PowerShell(& \"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root \"-pXiMaAl9426<3\" -e \"SHOW VARIABLES LIKE 'event_scheduler';\")",
+      "Bash(\"C:/xampp/mysql/bin/mysql.exe\" -u root \"-pXiMaAl9426<3\" bachilleratos)",
+      "PowerShell(& \"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root \"-pXiMaAl9426<3\" bachilleratos -e \"SHOW EVENTS\\\\G\")",
+      "PowerShell(& \"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root \"-pXiMaAl9426<3\" bachilleratos -e \"SELECT id, nombre, estado, fecha_limite_registro, fecha_inicio, fecha_fin FROM clubes;\")",
+      "PowerShell(& \"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root \"-pXiMaAl9426<3\" bachilleratos -e \"SELECT id, nombre, estado FROM clubes;\")",
+      "Bash(tail -30 /c/xampp/apache/logs/error.log 2>/dev/null || echo \"no log\")",
+      "Read(//c/xampp/apache/logs/**)",
+      "Bash(./mysql.exe -u root bachilleratos)",
+      "Bash(./mysqladmin.exe -u root status)",
+      "Bash(./mysql.exe --version)",
+      "Bash(./mysql.exe -u root '-pXiMaAl9426<3' bachilleratos -e ' *)",
+      "Bash(./mysql.exe -u root -p'XiMaAl9426<3' bachilleratos -e \"SHOW TABLES LIKE 'inscripciones_club'; DESCRIBE inscripciones_club;\")",
+      "Bash(./mysql.exe -u root -p'XiMaAl9426<3' bachilleratos -e \"UPDATE clubes SET autorizado = 'no', restaurado = 1 WHERE id = 2 AND estado = 'borrador';\")",
+      "Bash(./mysql.exe -u root -p'XiMaAl9426<3' bachilleratos -e \"SELECT id, nombre, estado, autorizado, restaurado FROM clubes;\")"
+    ],
+    "additionalDirectories": [
+      "c:\\xampp\\mysql\\bin"
+    ]
+  }
+}

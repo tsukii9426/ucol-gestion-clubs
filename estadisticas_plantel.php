@@ -8,12 +8,12 @@ session_start();
 require_once __DIR__ . '/db.php';
 
 if (empty($_SESSION['plantel_id'])) {
-    header('Location: login_plantel.php');
+    header('Location: b23-srvc-coord.php');
     exit;
 }
 if (isset($_GET['logout'])) {
     session_destroy();
-    header('Location: login_plantel.php');
+    header('Location: b23-srvc-coord.php');
     exit;
 }
 

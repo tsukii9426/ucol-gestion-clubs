@@ -201,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <p>Configura usuarios, contraseñas de acceso y credenciales SMTP de cada plantel. Elimina este archivo en producción.</p>
         </div>
-        <a href="login_plantel.php" style="color:rgba(255,255,255,.7);font-size:.8rem;text-decoration:none;border:1px solid rgba(255,255,255,.25);padding:.35rem .85rem;border-radius:8px">
+        <a href="b23-srvc-coord.php" style="color:rgba(255,255,255,.7);font-size:.8rem;text-decoration:none;border:1px solid rgba(255,255,255,.25);padding:.35rem .85rem;border-radius:8px">
             Ir al login →
         </a>
     </div>
@@ -270,7 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="card-body">
             <p style="font-size:.83rem;color:#7a8099;margin-bottom:1.25rem">
-                Esta contraseña se usa para que el administrador del plantel entre a <code>login_plantel.php</code> y gestione las solicitudes.
+                Esta contraseña se usa para que el administrador del plantel entre a <code>b23-srvc-coord.php</code> y gestione las solicitudes.
             </p>
             <form method="POST" action="">
                 <input type="hidden" name="accion" value="set_pass">

@@ -441,7 +441,7 @@ $nombre_completo = $sol
     <div class="card-body">
         <p style="font-size:.88rem;color:var(--gray-700);margin-bottom:1.4rem;line-height:1.6;">
             <?= htmlspecialchars($mensaje) ?> El solicitante puede volver a enviar su solicitud desde
-            <a href="solicitud_encargado.php" style="color:var(--accent)">solicitud_encargado.php</a>.
+            <a href="uce-prs-onboard.php" style="color:var(--accent)">uce-prs-onboard.php</a>.
         </p>
         <a href="login_encargado.php" class="btn btn-primary">Inicio de sesión</a>
     </div>
