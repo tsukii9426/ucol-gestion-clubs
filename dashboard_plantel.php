@@ -6,12 +6,12 @@ require_once __DIR__ . '/sincronizar_estados.php';
 
 // ── Proteger ruta ────────────────────────────────────────────────
 if (empty($_SESSION['plantel_id'])) {
-    header('Location: b23-srvc-coord.php');
+    header('Location: ucol-srvc-coord.php');
     exit;
 }
 if (isset($_GET['logout'])) {
     session_destroy();
-    header('Location: b23-srvc-coord.php');
+    header('Location: ucol-srvc-coord.php');
     exit;
 }
 
