@@ -42,6 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $descripcion          = trim($_POST['descripcion']          ?? '');
     $fecha_inicio         = trim($_POST['fecha_inicio']         ?? '');
     $fecha_fin            = trim($_POST['fecha_fin']            ?? '');
+    $parcial1_fin         = trim($_POST['parcial1_fin']         ?? '');
+    $parcial2_fin         = trim($_POST['parcial2_fin']         ?? '');
     $fecha_limite_registro= trim($_POST['fecha_limite_registro']?? '');
     $limite               = (int)($_POST['limite']             ?? 0);
     $anio                 = (int)($_POST['anio']               ?? date('Y'));
@@ -66,6 +68,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if ($fecha_inicio && $fecha_fin && $fecha_fin <= $fecha_inicio) {
         $errores[] = 'La fecha de fin debe ser posterior a la de inicio.';
+    }
+    if (!$parcial1_fin) {
+        $errores[] = 'La fecha de fin del 1er parcial es obligatoria.';
+    }
+    if (!$parcial2_fin) {
+        $errores[] = 'La fecha de fin del 2do parcial es obligatoria.';
+    }
+    if ($parcial1_fin && $fecha_inicio && $parcial1_fin <= $fecha_inicio) {
+        $errores[] = 'El fin del 1er parcial debe ser posterior a la fecha de inicio.';
+    }
+    if ($parcial1_fin && $parcial2_fin && $parcial2_fin <= $parcial1_fin) {
+        $errores[] = 'El fin del 2do parcial debe ser posterior al fin del 1er parcial.';
+    }
+    if ($parcial2_fin && $fecha_fin && $parcial2_fin >= $fecha_fin) {
+        $errores[] = 'El fin del 2do parcial debe ser anterior a la fecha de fin (debe quedar tiempo para el 3er parcial).';
     }
     if ($fecha_limite_registro) {
         if ($fecha_limite_registro < $fecha_inicio) {
@@ -117,15 +134,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $insClub = $pdo->prepare("
                 INSERT INTO clubes
                     (nombre, descripcion, fecha_inicio, fecha_fin,
+                     parcial1_fin, parcial2_fin,
                      fecha_limite_registro, limite, anio, semestre,
                      estado, id_plantel, id_encargado)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'borrador', ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'borrador', ?, ?)
             ");
             $insClub->execute([
                 $nombre,
                 $descripcion,
                 $fecha_inicio,
                 $fecha_fin,
+                $parcial1_fin,
+                $parcial2_fin,
                 $fecha_limite_registro ?: null,
                 $limite,
                 $anio,
@@ -620,7 +640,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <!-- ── CARD 3: HORARIOS ──────────────────────── -->
+        <!-- ── CARD 3: PARCIALES ─────────────────────── -->
+        <div class="card">
+            <div class="card-top">
+                <h2>
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    Parciales
+                </h2>
+                <p>Divide el periodo del club en 3 parciales (se usan para el registro de asistencia)</p>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+
+                    <div class="fg">
+                        <label for="parcial1_fin">Fin del 1er parcial <span class="req">*</span></label>
+                        <div class="iw">
+                            <svg class="icon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <input type="date" id="parcial1_fin" name="parcial1_fin" onchange="validarParciales()" value="<?= htmlspecialchars($post['parcial1_fin'] ?? '') ?>" required>
+                        </div>
+                    </div>
+
+                    <div class="fg">
+                        <label for="parcial2_fin">Fin del 2do parcial <span class="req">*</span></label>
+                        <div class="iw">
+                            <svg class="icon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <input type="date" id="parcial2_fin" name="parcial2_fin" onchange="validarParciales()" value="<?= htmlspecialchars($post['parcial2_fin'] ?? '') ?>" required>
+                        </div>
+                    </div>
+
+                    <div class="fg full" id="resumen-parciales"></div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ── CARD 4: HORARIOS ──────────────────────── -->
         <div class="card">
             <div class="card-top">
                 <h2>
@@ -725,6 +779,56 @@ function validarFechas() {
         h.textContent = `✓ Duración: ${dias} días`;
         h.style.color = 'var(--success)';
     }
+    validarParciales();
+}
+
+// ── Resumen visual de parciales ───────────────────
+function parseLocalDate(str) {
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+}
+function addDays(date, n) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + n);
+    return d;
+}
+function fmtDate(date) {
+    return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+function diffDays(a, b) {
+    return Math.round((b - a) / 86400000) + 1;
+}
+function validarParciales() {
+    const fi = document.getElementById('fecha_inicio').value;
+    const ff = document.getElementById('fecha_fin').value;
+    const p1 = document.getElementById('parcial1_fin').value;
+    const p2 = document.getElementById('parcial2_fin').value;
+    const cont = document.getElementById('resumen-parciales');
+    cont.innerHTML = '';
+    if (!fi || !ff || !p1 || !p2) return;
+
+    const dFi = parseLocalDate(fi);
+    const dFf = parseLocalDate(ff);
+    const dP1 = parseLocalDate(p1);
+    const dP2 = parseLocalDate(p2);
+
+    if (!(dFi < dP1 && dP1 < dP2 && dP2 < dFf)) {
+        cont.innerHTML = '<p class="hint" style="color:var(--error)">⚠ Verifica el orden: inicio &lt; fin 1er parcial &lt; fin 2do parcial &lt; fin del club.</p>';
+        return;
+    }
+
+    const rangos = [
+        ['1er parcial', dFi, dP1],
+        ['2do parcial', addDays(dP1, 1), dP2],
+        ['3er parcial', addDays(dP2, 1), dFf],
+    ];
+    rangos.forEach(([lbl, ini, fin]) => {
+        const p = document.createElement('p');
+        p.className = 'hint';
+        p.style.color = 'var(--success)';
+        p.innerHTML = `✓ <strong>${lbl}:</strong> ${fmtDate(ini)} – ${fmtDate(fin)} (${diffDays(ini, fin)} días)`;
+        cont.appendChild(p);
+    });
 }
 
 // ── Horarios dinámicos ────────────────────────────
@@ -792,6 +896,8 @@ function actualizarBotones() {
 function renumerar() {
     document.querySelectorAll('.horario-num').forEach((el, i) => el.textContent = i + 1);
 }
+
+validarFechas();
 </script>
 
 </body>

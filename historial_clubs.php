@@ -26,10 +26,6 @@ $alumno = [
     'plantel'    => $_SESSION['plantel']       ?? '',
     'id_plantel' => $_SESSION['id_plantel']    ?? null,
     'ciclo'      => 'FEB-2026/AGO-2026',
-    'carrera'    => '',
-    'semestre'   => '',
-    'grupo'      => '',
-    'curp'       => '',
 ];
 
 // Iniciales del nombre para el avatar
@@ -39,17 +35,24 @@ foreach (array_slice($partes, 0, 2) as $p) {
     $iniciales .= mb_substr($p, 0, 1);
 }
 
-// ── Cargar clubs activos del alumno en este semestre ──────────────────
+// ── Cargar todos los clubs en los que el alumno ha estado inscrito ──
 $mis_clubs = [];
 $dias_map  = ['Domingo'=>0,'Lunes'=>1,'Martes'=>2,'Miércoles'=>3,
                'Jueves'=>4,'Viernes'=>5,'Sábado'=>6];
 $meses_es  = ['','Ene','Feb','Mar','Abr','May','Jun',
                'Jul','Ago','Sep','Oct','Nov','Dic'];
 
+$estado_info = [
+    'apertura'   => ['label' => 'En apertura', 'cls' => 'apertura'],
+    'iniciado'   => ['label' => 'En curso',     'cls' => 'iniciado'],
+    'finalizado' => ['label' => 'Finalizado',   'cls' => 'finalizado'],
+    'cancelado'  => ['label' => 'Cancelado',    'cls' => 'cancelado'],
+];
+
 try {
     $pdo = getDB();
 
-    // Clubs inscritos vía inscripciones_club, activos en el semestre actual
+    // Clubs inscritos vía inscripciones_club (historial completo, todos los estados)
     $stmt = $pdo->prepare("
         SELECT c.id, c.nombre, c.descripcion, c.fecha_inicio, c.fecha_fin,
                c.limite, c.estado,
@@ -60,7 +63,6 @@ try {
         LEFT JOIN inscripciones_club ic2 ON ic2.id_club = c.id
         LEFT JOIN personas p  ON p.id       = c.id_encargado
         WHERE ic.numero_cuenta = ?
-          AND c.estado IN ('apertura','iniciado')
         GROUP BY c.id
         ORDER BY c.nombre
     ");
@@ -122,16 +124,13 @@ try {
     unset($mc);
 
 } catch (Exception $e) { /* silently fail */ }
-
-// Actualizar sesión (para compatibilidad)
-$_SESSION['ya_inscrito'] = !empty($mis_clubs);
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ver Clubes — Bachillerato 23</title>
+    <title>Historial de clubs — Bachillerato 23</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
     <style>
@@ -188,39 +187,14 @@ $_SESSION['ya_inscrito'] = !empty($mis_clubs);
         .sec-lbl { font-size:.68rem; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--gray-500); display:flex; align-items:center; gap:.4rem; margin-bottom:.85rem; }
         .sec-lbl::after { content:''; flex:1; height:1px; background:var(--gray-200); }
 
-        /* FICHA */
-        .ficha { background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow-lg); overflow:hidden; margin-bottom:2rem; animation:fadeUp .35s ease both; }
-        .ficha-top { background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%); padding:1.5rem 2rem; display:flex; align-items:center; gap:1.25rem; position:relative; overflow:hidden; }
-        .ficha-top::after { content:''; position:absolute; right:-20px; bottom:-50px; width:170px; height:170px; border-radius:50%; background:rgba(255,255,255,.05); }
-        .ficha-av { width:68px; height:68px; border-radius:50%; background:var(--accent); border:3px solid rgba(255,255,255,.3); display:flex; align-items:center; justify-content:center; font-family:'Outfit',sans-serif; font-weight:700; font-size:1.4rem; color:#fff; flex-shrink:0; position:relative; z-index:1; }
-        .ficha-ti { position:relative; z-index:1; }
-        .ficha-ti h2 { font-family:'Outfit',sans-serif; font-weight:700; font-size:1.1rem; color:#fff; line-height:1.3; }
-        .badge-cta { display:inline-flex; align-items:center; gap:.35rem; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); border-radius:20px; padding:.22rem .75rem; font-size:.74rem; color:rgba(255,255,255,.9); font-family:'Outfit',sans-serif; font-weight:500; margin-top:.45rem; }
-        .ficha-bd { padding:1.4rem 2rem 1.3rem; display:grid; grid-template-columns:repeat(3,1fr); gap:1rem 1.5rem; }
-        .fi-lbl { font-size:.67rem; font-weight:600; text-transform:uppercase; letter-spacing:.7px; color:var(--gray-500); display:flex; align-items:center; gap:.3rem; margin-bottom:.25rem; }
-        .fi-val { font-family:'Outfit',sans-serif; font-size:.88rem; font-weight:600; }
-        .fi-val.sm { font-size:.78rem; font-weight:500; }
-        .ficha-ft { padding:0 2rem 1.25rem; display:flex; gap:.6rem; flex-wrap:wrap; }
-        .chip { display:inline-flex; align-items:center; gap:.3rem; background:var(--gray-50); border:1px solid var(--gray-200); border-radius:20px; padding:.28rem .75rem; font-size:.74rem; color:var(--gray-700); font-weight:500; }
-
-        /* ACCESOS RÁPIDOS */
-        .quick-actions { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem; }
-        .qa-card { background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow-lg); padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1rem; text-decoration:none; color:var(--text); transition:all .2s; animation:fadeUp .35s ease both; }
-        .qa-card:hover { transform:translateY(-2px); box-shadow:0 14px 40px rgba(27,45,84,.16); }
-        .qa-icon { width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-        .qa-icon-navy   { background:rgba(27,45,84,.08); color:var(--navy); }
-        .qa-icon-accent { background:rgba(74,127,212,.12); color:var(--accent); }
-        .qa-txt { flex:1; min-width:0; }
-        .qa-title { font-family:'Outfit',sans-serif; font-weight:700; font-size:.92rem; margin-bottom:.15rem; }
-        .qa-desc  { font-size:.78rem; color:var(--gray-500); line-height:1.4; }
-        .qa-arrow { color:var(--gray-300); flex-shrink:0; transition:transform .2s,color .2s; }
-        .qa-card:hover .qa-arrow { color:var(--accent); transform:translateX(3px); }
-
-        /* ── VISTA INSCRITO ──────────────────────────── */
+        /* ── CLUB CARD ──────────────────────────── */
         .ic-card { background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow-lg); overflow:hidden; margin-bottom:1.5rem; animation:fadeUp .35s ease both; }
         .ic-top { background:linear-gradient(135deg,var(--navy),var(--navy-light)); padding:1.4rem 2rem; display:flex; align-items:flex-start; gap:1.1rem; position:relative; overflow:hidden; }
         .ic-top::after { content:''; position:absolute; right:-20px; bottom:-40px; width:150px; height:150px; border-radius:50%; background:rgba(255,255,255,.05); }
         .ic-badge { display:inline-flex; align-items:center; gap:.35rem; background:rgba(46,158,110,.3); border:1px solid rgba(46,158,110,.5); border-radius:20px; padding:.22rem .75rem; font-size:.72rem; color:#a8f0cc; font-family:'Outfit',sans-serif; font-weight:600; margin-bottom:.45rem; }
+        .ic-badge.apertura   { background:rgba(74,127,212,.3);  border-color:rgba(74,127,212,.5);  color:#cfe0ff; }
+        .ic-badge.finalizado { background:rgba(122,128,153,.3); border-color:rgba(122,128,153,.5); color:#dfe2ec; }
+        .ic-badge.cancelado  { background:rgba(217,79,79,.3);   border-color:rgba(217,79,79,.5);   color:#ffd6d6; }
         .ic-icon { width:50px; height:50px; border-radius:12px; background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; flex-shrink:0; position:relative; z-index:1; }
         .ic-ti { position:relative; z-index:1; flex:1; }
         .ic-ti h2 { font-family:'Outfit',sans-serif; font-weight:700; font-size:1.1rem; color:#fff; line-height:1.3; margin-bottom:.2rem; }
@@ -267,8 +241,8 @@ $_SESSION['ya_inscrito'] = !empty($mis_clubs);
             .page { padding:1.25rem 1rem 3rem; }
             header { padding:0 1rem; }
             nav a span { display:none; }
-            .ficha-bd { grid-template-columns:1fr 1fr; }
-            .quick-actions { grid-template-columns:1fr; }
+            .ic-body { grid-template-columns:1fr; }
+            .two-col-ins { grid-template-columns:1fr; }
         }
     </style>
 </head>
@@ -283,11 +257,11 @@ $_SESSION['ya_inscrito'] = !empty($mis_clubs);
         </div>
     </div>
     <nav>
-        <a href="dashboard_alumno.php" class="active">
+        <a href="dashboard_alumno.php">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             <span>Inicio</span>
         </a>
-        <a href="historial_clubs.php">
+        <a href="historial_clubs.php" class="active">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             <span>Historial</span>
         </a>
@@ -312,90 +286,35 @@ $_SESSION['ya_inscrito'] = !empty($mis_clubs);
 
 <div class="page">
 
-    <!-- ACCESOS RÁPIDOS -->
-    <div class="quick-actions">
-        <a href="historial_clubs.php" class="qa-card">
-            <div class="qa-icon qa-icon-navy">
-                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <div class="qa-txt">
-                <div class="qa-title">Historial de clubs</div>
-                <div class="qa-desc">Consulta todos los clubs en los que has participado</div>
-            </div>
-            <svg class="qa-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
-        <a href="registro_clubs.php" class="qa-card">
-            <div class="qa-icon qa-icon-accent">
-                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </div>
-            <div class="qa-txt">
-                <div class="qa-title">Registrarme a un club</div>
-                <div class="qa-desc">Explora los clubs disponibles para inscribirte</div>
-            </div>
-            <svg class="qa-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
-    </div>
-
-    <!-- FICHA -->
     <div class="sec-lbl">
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Ficha del alumno
-    </div>
-    <div class="ficha">
-        <div class="ficha-top">
-            <div class="ficha-av"><?= htmlspecialchars($iniciales) ?></div>
-            <div class="ficha-ti">
-                <h2><?= htmlspecialchars($alumno['nombre']) ?></h2>
-                <div class="badge-cta">
-                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-                    Número de cuenta: &nbsp;<strong><?= htmlspecialchars($alumno['cuenta']) ?></strong>
-                </div>
-            </div>
-        </div>
-        <div class="ficha-bd" style="grid-template-columns:1fr 1fr">
-            <div>
-                <div class="fi-lbl"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Número de cuenta</div>
-                <div class="fi-val"><?= htmlspecialchars($alumno['cuenta']) ?></div>
-            </div>
-            <div>
-                <div class="fi-lbl"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Plantel</div>
-                <div class="fi-val"><?= htmlspecialchars($alumno['plantel']) ?></div>
-            </div>
-            <div>
-                <div class="fi-lbl"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Correo</div>
-                <div class="fi-val sm"><?= htmlspecialchars($alumno['correo']) ?></div>
-            </div>
-            <div>
-                <div class="fi-lbl"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Estado</div>
-                <div class="fi-val sm">
-                    <?php $n = count($mis_clubs); if ($n > 0): ?>
-                    <span style="color:var(--success);font-weight:600">✓ Inscrito en <?= $n ?> club<?= $n > 1 ? 's' : '' ?></span>
-                    <?php else: ?>
-                    <span style="color:var(--gray-500)">Sin club asignado</span>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Historial de clubs <span style="font-weight:400;color:var(--gray-500)">(<?= count($mis_clubs) ?>)</span>
     </div>
 
-    <?php if (!empty($mis_clubs)): ?>
-
-    <!-- ── MIS CLUBS (puede haber varios) ────────── -->
-    <div class="sec-lbl">
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-        Mis clubs <span style="font-weight:400;color:var(--gray-500)">(<?= count($mis_clubs) ?>)</span>
+    <?php if (empty($mis_clubs)): ?>
+    <div style="text-align:center;padding:3rem 1rem;color:var(--gray-500);font-size:.88rem">
+        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="display:block;margin:0 auto .75rem;opacity:.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Aún no te has inscrito a ningún club.
     </div>
-
-    <?php foreach ($mis_clubs as $mc): ?>
-    <div class="ic-card" style="margin-bottom:1.25rem">
+    <?php else: foreach ($mis_clubs as $mc):
+        $info = $estado_info[$mc['estado']] ?? ['label' => ucfirst($mc['estado']), 'cls' => '']; ?>
+    <div class="ic-card">
         <div class="ic-top">
             <div class="ic-icon">
                 <svg width="22" height="22" fill="none" stroke="white" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <div class="ic-ti">
-                <div class="ic-badge">
-                    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
-                    Inscrito
+                <div class="ic-badge <?= $info['cls'] ?>">
+                    <?php if ($mc['estado'] === 'iniciado'): ?>
+                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+                    <?php elseif ($mc['estado'] === 'apertura'): ?>
+                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <?php elseif ($mc['estado'] === 'cancelado'): ?>
+                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    <?php else: ?>
+                        🏁
+                    <?php endif; ?>
+                    <?= htmlspecialchars($info['label']) ?>
                 </div>
                 <h2><?= htmlspecialchars($mc['nombre']) ?></h2>
                 <p><?= htmlspecialchars($mc['descripcion']) ?></p>
@@ -408,7 +327,7 @@ $_SESSION['ya_inscrito'] = !empty($mis_clubs);
             </div>
             <div class="ic-field">
                 <div class="lbl"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Estado</div>
-                <div class="val"><?= ucfirst($mc['estado']) ?></div>
+                <div class="val"><?= htmlspecialchars($info['label']) ?></div>
             </div>
             <div class="ic-field">
                 <div class="lbl"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Periodo</div>
@@ -441,7 +360,19 @@ $_SESSION['ya_inscrito'] = !empty($mis_clubs);
                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 Próximas sesiones
             </div>
-            <?php if (empty($mc['proximas'])): ?>
+            <?php if ($mc['estado'] === 'finalizado'): ?>
+            <div style="text-align:center;padding:1rem 0 .5rem">
+                <div style="font-size:2rem;line-height:1;margin-bottom:.5rem">🏁</div>
+                <p style="font-size:.85rem;font-weight:600;color:var(--gray-700);margin:0">Club finalizado</p>
+                <p style="font-size:.78rem;color:var(--gray-500);margin:.25rem 0 0">Este club ha concluido sus actividades.</p>
+            </div>
+            <?php elseif ($mc['estado'] === 'cancelado'): ?>
+            <div style="text-align:center;padding:1rem 0 .5rem">
+                <div style="font-size:2rem;line-height:1;margin-bottom:.5rem">🚫</div>
+                <p style="font-size:.85rem;font-weight:600;color:var(--gray-700);margin:0">Club cancelado</p>
+                <p style="font-size:.78rem;color:var(--gray-500);margin:.25rem 0 0">Este club ya no tiene actividades programadas.</p>
+            </div>
+            <?php elseif (empty($mc['proximas'])): ?>
             <div class="ic-empty">No hay sesiones próximas.</div>
             <?php else: foreach ($mc['proximas'] as $ps):
                 $esHoy = $ps['fecha']->format('Y-m-d') === date('Y-m-d'); ?>
@@ -482,11 +413,11 @@ $_SESSION['ya_inscrito'] = !empty($mis_clubs);
             <?php endforeach; endif; ?>
         </div>
     </div>
-    <?php endforeach; ?>
-
-    <?php endif; ?>
+    <?php endforeach; endif; ?>
 
 </div>
+
+<footer>© <?= date('Y') ?> Universidad de Colima — Bachillerato 23 | Sistema de Clubes Estudiantiles</footer>
 
 </body>
 </html>

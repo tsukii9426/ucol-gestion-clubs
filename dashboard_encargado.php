@@ -174,6 +174,7 @@ $bar_colors = ['cb-blue','cb-green','cb-orange','cb-navy','cb-accent'];
 
         /* STAT CARDS */
         .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.75rem; }
+        .stats-6 { grid-template-columns:repeat(6,1fr); gap:.75rem; }
         .stat-card {
             background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow-lg);
             padding:1.25rem 1.4rem; display:flex; flex-direction:column; gap:.6rem;
@@ -316,11 +317,20 @@ $bar_colors = ['cb-blue','cb-green','cb-orange','cb-navy','cb-accent'];
         @media (max-width:860px) {
             .layout { grid-template-columns:1fr; }
             .stats { grid-template-columns:1fr 1fr; }
+            .stats-6 { grid-template-columns:repeat(3,1fr); gap:.6rem; }
             .quick-actions { grid-template-columns:1fr 1fr; }
             .page { padding:0 1rem 3rem; }
             header { padding:0 1rem; }
             nav a span { display:none; }
             .hero { padding:1.5rem 1rem 3rem; }
+        }
+
+        @media (max-width:540px) {
+            .stats-6 { grid-template-columns:1fr 1fr; gap:.5rem; }
+            .quick-actions { grid-template-columns:1fr; }
+            .club-mini-body { flex-wrap:wrap; }
+            .cupo-mini { flex-basis:100%; text-align:left; margin-top:.5rem; }
+            .cupo-mini-bar { width:100%; }
         }
     </style>
 </head>
@@ -380,7 +390,7 @@ $bar_colors = ['cb-blue','cb-green','cb-orange','cb-navy','cb-accent'];
 <div class="page">
 
     <!-- STAT CARDS — 6 estados del club -->
-    <div class="stats" style="grid-template-columns:repeat(6,1fr);gap:.75rem">
+    <div class="stats stats-6">
         <?php
         $stat_cfg = [
             ['key'=>'borrador',   'lbl'=>'Borradores',  'color'=>'#5a4fcf','bg'=>'#f0f0ff','icon'=>'✏️'],

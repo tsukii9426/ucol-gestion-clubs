@@ -62,6 +62,8 @@ CREATE TABLE IF NOT EXISTS clubes (
     descripcion  VARCHAR(150)                         NOT NULL,
     fecha_inicio DATE                                 NOT NULL,
     fecha_fin    DATE                                 NOT NULL,
+    parcial1_fin DATE NULL COMMENT 'Fecha de fin del 1er parcial',
+    parcial2_fin DATE NULL COMMENT 'Fecha de fin del 2do parcial',
     limite       TINYINT UNSIGNED                     NOT NULL COMMENT 'Cupo máximo',
     anio         YEAR                                 NOT NULL,
     semestre     ENUM('par','impar')                  NOT NULL,

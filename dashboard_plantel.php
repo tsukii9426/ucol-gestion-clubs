@@ -204,7 +204,7 @@ try {
 
     // TODOS los clubs del plantel con su estado y encargado
     $stmt_clubs = $pdo->prepare("
-        SELECT c.id, c.nombre, c.descripcion, c.semestre, c.limite,
+        SELECT c.id, c.nombre, c.descripcion, c.semestre, c.anio, c.limite,
                c.fecha_inicio, c.fecha_fin, c.fecha_limite_registro,
                c.estado, c.autorizado, c.restaurado,
                COUNT(DISTINCT ic.numero_cuenta) AS inscritos,
@@ -221,6 +221,19 @@ try {
     $todos_clubs = $stmt_clubs->fetchAll();
     $clubs_borrador = array_filter($todos_clubs, fn($c) => $c['estado'] === 'borrador');
 
+    // Semestre académico actual (Feb-Jul = par, Ago-Ene = impar)
+    $mes_actual      = (int)date('n');
+    $semestre_actual = ($mes_actual >= 2 && $mes_actual <= 7) ? 'par' : 'impar';
+
+    // Clubs del plantel a mostrar: los de ese semestre, excepto cancelados
+    $clubs_plantel = array_values(array_filter($todos_clubs, fn($c) =>
+        $c['semestre'] === $semestre_actual && $c['estado'] !== 'cancelado'
+    ));
+
+    // Vista de "Clubs del plantel": semestre actual (por defecto) o historial completo
+    $vista_clubs   = ($_GET['vista_clubs'] ?? '') === 'historial' ? 'historial' : 'actual';
+    $clubs_mostrar = $vista_clubs === 'historial' ? $todos_clubs : $clubs_plantel;
+
     // Horarios de todos los clubs del plantel
     $horarios_plantel = [];
     if (!empty($todos_clubs)) {
@@ -235,12 +248,11 @@ try {
         foreach ($h_rows as $h) $horarios_plantel[$h['id_club']][] = $h;
     }
 
-    // Conteos de clubs por estado
-    $conteos_clubs = ['borrador'=>0,'apertura'=>0,'iniciado'=>0,'finalizado'=>0,'cancelado'=>0,'pendiente_auth'=>0];
-    foreach ($todos_clubs as $cl) {
+    // Conteos de clubs por estado (sobre los clubs mostrados)
+    $conteos_clubs = ['borrador'=>0,'apertura'=>0,'iniciado'=>0,'finalizado'=>0,'cancelado'=>0];
+    foreach ($clubs_mostrar as $cl) {
         $est = $cl['estado'] ?? 'borrador';
         if (isset($conteos_clubs[$est])) $conteos_clubs[$est]++;
-        if ($est === 'borrador' && $cl['autorizado'] === 'no') $conteos_clubs['pendiente_auth']++;
     }
 
 } catch (Exception $e) {
@@ -377,6 +389,7 @@ try {
 
         /* LAYOUT 2 COLUMNAS */
         .two-col { display:grid; grid-template-columns:1fr 380px; gap:1.5rem; align-items:start; }
+        .col-divider { padding-right:1.5rem; border-right:1px solid var(--gray-200); }
 
         /* COLUMNA DE CLUBS */
         .col-clubs-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:.85rem; }
@@ -432,6 +445,7 @@ try {
 
         @media (max-width:900px) {
             .two-col { grid-template-columns:1fr; }
+            .col-divider { padding-right:0; border-right:none; padding-bottom:1.5rem; border-bottom:1px solid var(--gray-200); margin-bottom:.5rem; }
         }
         @media (max-width:640px) {
             .stats { grid-template-columns:1fr 1fr; }
@@ -439,6 +453,9 @@ try {
             .sol-actions { flex-direction:row; }
             .sol-datos { grid-template-columns:1fr; }
             header { padding:0 1rem; }
+            .hb-logo { width:32px; height:32px; font-size:.62rem; }
+            .hb-name { font-size:.92rem; }
+            .hb-sub  { font-size:.62rem; }
         }
     </style>
 </head>
@@ -486,6 +503,18 @@ try {
         <div><?= htmlspecialchars($msg_err) ?></div>
     </div>
     <?php endif; ?>
+
+    <!-- GRID 2 COLUMNAS: solicitudes | clubs -->
+    <div class="two-col">
+    <!-- ═══ COLUMNA 1: SOLICITUDES ═══ -->
+    <div class="col-divider">
+        <div class="col-clubs-header">
+            <h3>
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Gestión de encargados
+                <span style="background:var(--gray-100);border-radius:20px;padding:.1rem .55rem;font-size:.7rem;font-weight:600;color:var(--gray-500)"><?= count($solicitudes) ?></span>
+            </h3>
+        </div>
 
     <!-- ── CLUBS PENDIENTES DE AUTORIZACIÓN ──────────────── -->
     <?php
@@ -638,10 +667,6 @@ try {
         <a href="?filtro=todos"      class="filtro-btn t <?= $filtro==='todos'       ? 'active' : '' ?>">Todos</a>
     </div>
 
-    <!-- GRID 2 COLUMNAS: solicitudes | clubs -->
-    <div class="two-col">
-    <!-- ═══ COLUMNA 1: SOLICITUDES ═══ -->
-    <div>
     <div class="sol-grid">
     <?php if (empty($solicitudes)): ?>
         <div class="empty">
@@ -777,14 +802,34 @@ try {
             <h3>
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 Clubs del plantel
-                <span style="background:var(--gray-100);border-radius:20px;padding:.1rem .55rem;font-size:.7rem;font-weight:600;color:var(--gray-500)"><?= count($todos_clubs) ?></span>
+                <span style="background:var(--gray-100);border-radius:20px;padding:.1rem .55rem;font-size:.7rem;font-weight:600;color:var(--gray-500)"><?= count($clubs_mostrar) ?></span>
             </h3>
-            <?php if ($conteos_clubs['pendiente_auth'] > 0): ?>
-            <span style="font-size:.72rem;font-weight:700;background:#fff8ee;color:#7a4f10;border:1px solid #f5d8a0;border-radius:20px;padding:.2rem .65rem">
-                ⏳ <?= $conteos_clubs['pendiente_auth'] ?> por autorizar
-            </span>
-            <?php endif; ?>
+            <div style="display:flex;align-items:center;gap:.5rem">
+                <?php if (count($clubs_sin_autorizar) > 0): ?>
+                <span style="font-size:.72rem;font-weight:700;background:#fff8ee;color:#7a4f10;border:1px solid #f5d8a0;border-radius:20px;padding:.2rem .65rem">
+                    ⏳ <?= count($clubs_sin_autorizar) ?> por autorizar
+                </span>
+                <?php endif; ?>
+                <?php if ($vista_clubs === 'historial'): ?>
+                <a href="?vista_clubs=actual" class="filtro-btn t" style="padding:.3rem .7rem;font-size:.7rem;display:inline-flex;align-items:center;gap:.3rem">
+                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Semestre actual
+                </a>
+                <?php else: ?>
+                <a href="?vista_clubs=historial" class="filtro-btn t" style="padding:.3rem .7rem;font-size:.7rem;display:inline-flex;align-items:center;gap:.3rem">
+                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Historial completo
+                </a>
+                <?php endif; ?>
+            </div>
         </div>
+        <p style="font-size:.74rem;color:var(--gray-500);margin:-.4rem 0 .85rem">
+            <?php if ($vista_clubs === 'historial'): ?>
+                Mostrando el historial completo de clubs del plantel &mdash; todos los semestres y a&ntilde;os, incluidos los cancelados
+            <?php else: ?>
+                Mostrando clubs del semestre <?= $semestre_actual === 'par' ? 'par (2°, 4°, 6°)' : 'impar (1°, 3°, 5°)' ?> &mdash; se ocultan los cancelados
+            <?php endif; ?>
+        </p>
 
         <!-- Resumen por estado -->
         <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem">
@@ -803,16 +848,16 @@ try {
             <?php endif; endforeach; ?>
         </div>
 
-        <?php if (empty($todos_clubs)): ?>
+        <?php if (empty($clubs_mostrar)): ?>
         <div style="text-align:center;padding:2rem 1rem;color:var(--gray-500);background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow)">
             <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="display:block;margin:0 auto .75rem;opacity:.4"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-            <p style="font-size:.85rem;font-weight:600">Sin clubs registrados</p>
+            <p style="font-size:.85rem;font-weight:600"><?= $vista_clubs === 'historial' ? 'Sin clubs registrados' : 'Sin clubs en este semestre' ?></p>
         </div>
         <?php else: ?>
 
         <?php
         $bar_cols = ['#4a7fd4','#2e9e6e','#d47a20','#1b2d54','#7b5ea7'];
-        foreach ($todos_clubs as $ci => $cl):
+        foreach ($clubs_mostrar as $ci => $cl):
             $est  = $cl['estado'] ?? 'borrador';
             $auth = $cl['autorizado'] ?? 'no';
             $bar_c = $bar_cols[$ci % count($bar_cols)];
@@ -856,7 +901,7 @@ try {
                         </span>
                         <span class="club-chip-sm">
                             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>
-                            <?= ucfirst($cl['semestre']) ?>
+                            <?= ucfirst($cl['semestre']) ?> <?= $cl['anio'] ?>
                         </span>
                     </div>
 

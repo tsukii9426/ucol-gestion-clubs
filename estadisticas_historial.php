@@ -1,7 +1,7 @@
 <?php
 /**
- * estadisticas_plantel.php
- * Vista de estadísticas de asistencia para el plantel.
+ * estadisticas_historial.php
+ * Registro histórico de estadísticas de asistencia para el plantel — todos los semestres y años.
  * Solo lectura — el plantel puede ver pero no modificar nada.
  */
 session_start();
@@ -21,10 +21,6 @@ $plantel_id     = (int)$_SESSION['plantel_id'];
 $plantel_nombre = $_SESSION['plantel_nombre'] ?? '';
 
 date_default_timezone_set('America/Mexico_City');
-
-// Semestre académico actual (Feb-Jul = par, Ago-Ene = impar)
-$mes_actual      = (int)date('n');
-$semestre_actual = ($mes_actual >= 2 && $mes_actual <= 7) ? 'par' : 'impar';
 
 $club_sel               = null;
 $todos_clubs            = [];
@@ -48,7 +44,7 @@ try {
 
     // ── Todos los clubs del plantel con stats generales ─────────────
     $stmt = $pdo->prepare("
-        SELECT c.id, c.nombre, c.estado, c.fecha_inicio, c.fecha_fin, c.limite, c.semestre,
+        SELECT c.id, c.nombre, c.estado, c.fecha_inicio, c.fecha_fin, c.limite, c.semestre, c.anio,
                IFNULL(CONCAT(p.nombres,' ',p.apellido_paterno),'Sin encargado') AS encargado_nombre,
                COUNT(DISTINCT ic.numero_cuenta) AS inscritos,
                COUNT(DISTINCT a.fecha) AS total_sesiones,
@@ -65,9 +61,6 @@ try {
     $stmt->execute([$plantel_id]);
     $todos_clubs = $stmt->fetchAll();
 
-    // Solo clubs del semestre actual — el registro histórico está en estadisticas_historial.php
-    $todos_clubs = array_values(array_filter($todos_clubs, fn($c) => $c['semestre'] === $semestre_actual));
-
     // ── Club seleccionado ───────────────────────────────────────────
     if ($club_id) {
         $chk = $pdo->prepare("
@@ -82,12 +75,6 @@ try {
         ");
         $chk->execute([$club_id, $plantel_id]);
         $club_sel = $chk->fetch();
-
-        // Los clubs de otros semestres se consultan en el registro histórico
-        if ($club_sel && $club_sel['semestre'] !== $semestre_actual) {
-            header('Location: estadisticas_historial.php?id_club=' . $club_id . '&parcial=' . $parcial);
-            exit;
-        }
 
         if ($club_sel) {
             $fi  = strtotime($club_sel['fecha_inicio']);
@@ -212,7 +199,7 @@ function pctStyle(int $pct, bool $noSes = false): array {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estadísticas — <?= htmlspecialchars($plantel_nombre) ?></title>
+    <title>Historial — <?= htmlspecialchars($plantel_nombre) ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
@@ -447,7 +434,7 @@ function pctStyle(int $pct, bool $noSes = false): array {
     <div class="hb">
         <div class="hb-logo">UdeC</div>
         <div>
-            <div class="hb-title">Estadísticas de Clubes</div>
+            <div class="hb-title">Historial de Clubes</div>
             <div class="hb-sub"><?= htmlspecialchars($plantel_nombre) ?></div>
         </div>
     </div>
@@ -473,9 +460,9 @@ function pctStyle(int $pct, bool $noSes = false): array {
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 Clubes (<?= count($todos_clubs) ?>)
             </div>
-            <a href="estadisticas_historial.php" class="sb-hist-link" title="Ver el registro histórico de clubs">
-                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                Historial
+            <a href="estadisticas_plantel.php" class="sb-hist-link" title="Volver al semestre actual">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+                Semestre actual
             </a>
         </div>
         <input type="text" id="sb-search" class="sb-search" placeholder="Buscar club…"
@@ -496,6 +483,7 @@ function pctStyle(int $pct, bool $noSes = false): array {
             <div class="sb-name"><?= htmlspecialchars($c['nombre']) ?></div>
             <div class="sb-meta">
                 <span class="ebadge eb-<?= $c['estado'] ?>"><?= ucfirst($c['estado']) ?></span>
+                <span style="font-size:.69rem;color:var(--gray-500)"><?= ucfirst($c['semestre']) ?> <?= $c['anio'] ?></span>
                 <span style="font-size:.69rem;color:var(--gray-500)"><?= $ins ?> inscrito<?= $ins !== 1 ? 's' : '' ?></span>
                 <?php if ($s > 0): ?>
                 <span style="font-size:.69rem;color:var(--gray-500)"><?= $s ?> sesión<?= $s !== 1 ? 'es' : '' ?></span>
@@ -511,8 +499,7 @@ function pctStyle(int $pct, bool $noSes = false): array {
         <?php endforeach; ?>
         <?php if (empty($todos_clubs)): ?>
         <div style="text-align:center;padding:2rem .5rem;color:var(--gray-500);font-size:.8rem">
-            Sin clubes en este semestre<br>
-            <a href="estadisticas_historial.php" style="color:var(--accent)">Ver historial completo</a>
+            Sin clubes registrados
         </div>
         <?php endif; ?>
     </div>
@@ -541,10 +528,10 @@ $apc = $avg_plantel >= 80 ? 'var(--success)' : ($avg_plantel >= 60 ? 'var(--warn
 
 <div style="margin-bottom:1.5rem">
     <h2 style="font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:.2rem">
-        Vista general · <?= htmlspecialchars($plantel_nombre) ?>
+        Historial completo · <?= htmlspecialchars($plantel_nombre) ?>
     </h2>
     <p style="font-size:.82rem;color:var(--gray-500)">
-        Selecciona un club en la barra lateral para ver el desglose de asistencia.
+        Selecciona un club en la barra lateral para ver su desglose de asistencia. Se muestran todos los semestres y años registrados.
     </p>
 </div>
 
@@ -573,8 +560,8 @@ $apc = $avg_plantel >= 80 ? 'var(--success)' : ($avg_plantel >= 60 ? 'var(--warn
 <?php if (empty($todos_clubs)): ?>
 <div style="text-align:center;padding:4rem 1rem;color:var(--gray-500)">
     <svg width="60" height="60" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24" style="display:block;margin:0 auto 1rem;opacity:.3"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-    <p style="font-weight:600;margin-bottom:.3rem">Sin clubes en este semestre</p>
-    <span style="font-size:.82rem">Consulta el <a href="estadisticas_historial.php" style="color:var(--accent)">historial completo</a> de clubs.</span>
+    <p style="font-weight:600;margin-bottom:.3rem">Sin clubes registrados</p>
+    <span style="font-size:.82rem">Los clubes creados aparecerán aquí.</span>
 </div>
 <?php else: ?>
 

@@ -908,7 +908,7 @@ if (isset($_GET['historial']) && ctype_digit($_GET['historial'])) {
                 <div class="side-card-body">
                     <?php if ($estado_actual === 'finalizado'): ?>
                     <div style="text-align:center;padding:1rem 0 .5rem">
-                        <svg width="32" height="32" fill="none" stroke="var(--gray-400)" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:.5rem"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <div style="font-size:2rem;line-height:1;margin-bottom:.5rem">🏁</div>
                         <p style="font-size:.85rem;font-weight:600;color:var(--gray-700);margin:0">Club finalizado</p>
                         <p style="font-size:.78rem;color:var(--gray-500);margin:.25rem 0 0">Este club ha concluido sus actividades.</p>
                     </div>

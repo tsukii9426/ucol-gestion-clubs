@@ -231,6 +231,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .iw:focus-within .icon { color: var(--accent); }
 
+        /* Botón mostrar/ocultar contraseña */
+        .iw-pass input { padding-right: 2.75rem; }
+        .toggle-pass {
+            position: absolute; right: .85rem; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none; padding: .2rem;
+            color: var(--gray-300); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: color .2s;
+        }
+        .toggle-pass:hover { color: var(--accent); }
+
         /* Input grande tipo credencial */
         input[type="text"],
         input[type="password"],
@@ -311,6 +323,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-top: 1.25rem; line-height: 1.6;
         }
         .info-box svg { flex-shrink: 0; margin-top: 2px; }
+        .info-box span { flex: 1; min-width: 0; }
 
         /* ── SEPARADOR Y LINK ────────────────────────── */
         .sep {
@@ -459,7 +472,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Contraseña -->
             <div class="field-gap">
                 <label for="contrasena">Contraseña</label>
-                <div class="iw">
+                <div class="iw iw-pass">
                     <svg class="icon" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                         <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -471,6 +484,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         placeholder="Tu contraseña"
                         autocomplete="current-password"
                         required>
+                    <button type="button" class="toggle-pass" data-target="contrasena" aria-label="Mostrar contraseña" tabindex="-1">
+                        <svg class="icon-eye" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <svg class="icon-eye-off" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                            <line x1="1" y1="1" x2="23" y2="23"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -497,12 +520,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
-            Solo el personal <strong>Administrativo</strong> y <strong>Docente</strong> registrado puede acceder. Si no puedes entrar, contacta al administrador de tu plantel.
+            <span>Solo el personal <strong>Administrativo</strong> y <strong>Docente</strong> registrado puede acceder. Si no puedes entrar, contacta al administrador de tu plantel.</span>
         </div>
 
         <div class="sep">o</div>
 
-        <a href="uce-prs-onboard.php" class="alt-link">
+        <a href="solicitud_encargado.php" class="alt-link">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
@@ -530,6 +553,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Solo permite números en el campo
 document.getElementById('numero_trabajador').addEventListener('input', function () {
     this.value = this.value.replace(/\D/g, '');
+});
+
+// Mostrar / ocultar contraseña
+document.querySelectorAll('.toggle-pass').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        const input = document.getElementById(this.dataset.target);
+        const oculto = input.type === 'password';
+        input.type = oculto ? 'text' : 'password';
+        this.querySelector('.icon-eye').style.display     = oculto ? 'none' : '';
+        this.querySelector('.icon-eye-off').style.display = oculto ? '' : 'none';
+        this.setAttribute('aria-label', oculto ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    });
 });
 </script>
 

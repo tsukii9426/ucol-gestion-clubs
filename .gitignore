@@ -4,8 +4,12 @@ config.php
 # Logs con datos sensibles (correos, tokens)
 logs/
 
-# Archivo de prueba — eliminar antes de producción
+# Archivos de prueba/configuración — no incluir en producción
 test_correo.php
+setup_plantel.php
+
+# Configuración local de herramientas de desarrollo
+.claude/settings.local.json
 
 # Archivos de sistema
 .DS_Store

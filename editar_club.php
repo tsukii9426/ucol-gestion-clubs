@@ -29,6 +29,7 @@ try {
     $pdo  = getDB();
     $stmt = $pdo->prepare("
         SELECT c.id, c.nombre, c.descripcion, c.fecha_inicio, c.fecha_fin,
+               c.parcial1_fin, c.parcial2_fin,
                c.fecha_limite_registro, c.limite, c.anio, c.semestre,
                c.estado, c.autorizado,
                COUNT(e.id) AS inscritos
@@ -90,6 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
     $descripcion           = trim($_POST['descripcion']          ?? '');
     $fecha_inicio          = trim($_POST['fecha_inicio']         ?? '');
     $fecha_fin             = trim($_POST['fecha_fin']            ?? '');
+    $parcial1_fin          = trim($_POST['parcial1_fin']         ?? '');
+    $parcial2_fin          = trim($_POST['parcial2_fin']         ?? '');
     $fecha_limite_registro = trim($_POST['fecha_limite_registro']?? '');
     $limite                = (int)($_POST['limite']             ?? 0);
     $anio                  = (int)($_POST['anio']               ?? date('Y'));
@@ -103,6 +106,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
     if (!$fecha_inicio) $errores[] = 'Fecha de inicio requerida.';
     if (!$fecha_fin)    $errores[] = 'Fecha de fin requerida.';
     if ($fecha_inicio && $fecha_fin && $fecha_fin <= $fecha_inicio) $errores[] = 'La fecha de fin debe ser posterior a la de inicio.';
+    if (!$parcial1_fin) $errores[] = 'La fecha de fin del 1er parcial es obligatoria.';
+    if (!$parcial2_fin) $errores[] = 'La fecha de fin del 2do parcial es obligatoria.';
+    if ($parcial1_fin && $fecha_inicio && $parcial1_fin <= $fecha_inicio) $errores[] = 'El fin del 1er parcial debe ser posterior a la fecha de inicio.';
+    if ($parcial1_fin && $parcial2_fin && $parcial2_fin <= $parcial1_fin) $errores[] = 'El fin del 2do parcial debe ser posterior al fin del 1er parcial.';
+    if ($parcial2_fin && $fecha_fin && $parcial2_fin >= $fecha_fin) $errores[] = 'El fin del 2do parcial debe ser anterior a la fecha de fin (debe quedar tiempo para el 3er parcial).';
     if ($fecha_limite_registro) {
         if ($fecha_limite_registro < $fecha_inicio) $errores[] = 'La fecha límite de registro no puede ser anterior al inicio.';
         if ($fecha_limite_registro > $fecha_fin)    $errores[] = 'La fecha límite de registro no puede ser posterior al fin.';
@@ -122,9 +130,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
         try {
             $pdo->beginTransaction();
             $pdo->prepare("UPDATE clubes SET nombre=?,descripcion=?,fecha_inicio=?,fecha_fin=?,
+                           parcial1_fin=?,parcial2_fin=?,
                            fecha_limite_registro=?,limite=?,anio=?,semestre=?
                            WHERE id=? AND id_encargado=?")
                 ->execute([$nombre,$descripcion,$fecha_inicio,$fecha_fin,
+                           $parcial1_fin,$parcial2_fin,
                            $fecha_limite_registro ?: null,$limite,$anio,$semestre,
                            $club_id,$enc_id]);
             $pdo->prepare("DELETE FROM horarios WHERE id_club=?")->execute([$club_id]);
@@ -462,13 +472,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
     </div>
 
     <?php if (!$es_editable): ?>
-    <div style="background:#fff8ee;border:1px solid #f5d8a0;border-left:3px solid var(--warning);border-radius:10px;padding:.85rem 1.25rem;margin-bottom:1.25rem;font-size:.84rem;color:#7a4f10;display:flex;align-items:center;gap:.6rem">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <div style="background:#fff8ee;border:1px solid #f5d8a0;border-left:3px solid var(--warning);border-radius:10px;padding:.85rem 1.25rem;margin-bottom:1.25rem;font-size:.84rem;color:#7a4f10;display:flex;align-items:flex-start;gap:.6rem">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:2px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span style="flex:1;min-width:0;line-height:1.6">
         <?php if ($club['estado'] === 'borrador' && ($club['autorizado'] ?? 'no') === 'si'): ?>
             Este club fue <strong>autorizado por el plantel</strong> y ya no puede modificarse. Puedes publicarlo cuando estés listo.
         <?php else: ?>
             Solo se pueden editar clubs en estado <strong>Borrador</strong> sin autorizar. En otros estados, aquí puedes ver los detalles y gestionar el estado.
         <?php endif; ?>
+        </span>
     </div>
     <?php endif; ?>
 
@@ -613,7 +625,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
             </div>
         </div>
 
-        <!-- CARD 3: HORARIOS -->
+        <!-- CARD 3: PARCIALES -->
+        <div class="card">
+            <div class="card-top">
+                <h2>
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    Parciales
+                </h2>
+                <p>Divide el periodo del club en 3 parciales (se usan para el registro de asistencia)</p>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+
+                    <div class="fg">
+                        <label for="parcial1_fin">Fin del 1er parcial <span class="req">*</span></label>
+                        <div class="iw">
+                            <svg class="icon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <input type="date" id="parcial1_fin" name="parcial1_fin"
+                                   value="<?= htmlspecialchars($club['parcial1_fin'] ?? '') ?>"
+                                   onchange="validarParciales()" required>
+                        </div>
+                    </div>
+
+                    <div class="fg">
+                        <label for="parcial2_fin">Fin del 2do parcial <span class="req">*</span></label>
+                        <div class="iw">
+                            <svg class="icon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <input type="date" id="parcial2_fin" name="parcial2_fin"
+                                   value="<?= htmlspecialchars($club['parcial2_fin'] ?? '') ?>"
+                                   onchange="validarParciales()" required>
+                        </div>
+                    </div>
+
+                    <div class="fg full" id="resumen-parciales"></div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 4: HORARIOS -->
         <div class="card">
             <div class="card-top">
                 <h2>
@@ -679,19 +729,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
             </div>
         </div>
 
+        <?php if ($es_editable): ?>
         <!-- FOOTER -->
         <div class="form-footer">
-            <a href="mis_clubes.php" class="btn-cancel">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                Cancelar
-            </a>
-            <?php if ($es_editable): ?>
             <button type="submit" name="guardar" class="btn-submit">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
                 Guardar cambios
             </button>
-            <?php endif; ?>
         </div>
+        <?php endif; ?>
 
     </form>
 
@@ -776,6 +822,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
         </div>
     </div>
 
+    <div style="display:flex;justify-content:flex-end;margin-top:1.5rem">
+        <a href="mis_clubes.php" class="btn-cancel">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Regresar
+        </a>
+    </div>
+
 </div><!-- /page -->
 
 <footer>&copy; <?= date('Y') ?> Universidad de Colima &mdash; Bachillerato 23 | Sistema de Clubes Estudiantiles</footer>
@@ -803,6 +856,56 @@ function validarFechas() {
         h.textContent = "✓ Duración: " + dias + " días";
         h.style.color = "var(--success)";
     }
+    validarParciales();
+}
+
+// Resumen visual de parciales
+function parseLocalDate(str) {
+    const [y, m, d] = str.split("-").map(Number);
+    return new Date(y, m - 1, d);
+}
+function addDays(date, n) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + n);
+    return d;
+}
+function fmtDate(date) {
+    return date.toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" });
+}
+function diffDays(a, b) {
+    return Math.round((b - a) / 86400000) + 1;
+}
+function validarParciales() {
+    const fi = document.getElementById("fecha_inicio").value;
+    const ff = document.getElementById("fecha_fin").value;
+    const p1 = document.getElementById("parcial1_fin").value;
+    const p2 = document.getElementById("parcial2_fin").value;
+    const cont = document.getElementById("resumen-parciales");
+    cont.innerHTML = "";
+    if (!fi || !ff || !p1 || !p2) return;
+
+    const dFi = parseLocalDate(fi);
+    const dFf = parseLocalDate(ff);
+    const dP1 = parseLocalDate(p1);
+    const dP2 = parseLocalDate(p2);
+
+    if (!(dFi < dP1 && dP1 < dP2 && dP2 < dFf)) {
+        cont.innerHTML = '<p class="hint" style="color:var(--error)">⚠ Verifica el orden: inicio &lt; fin 1er parcial &lt; fin 2do parcial &lt; fin del club.</p>';
+        return;
+    }
+
+    const rangos = [
+        ["1er parcial", dFi, dP1],
+        ["2do parcial", addDays(dP1, 1), dP2],
+        ["3er parcial", addDays(dP2, 1), dFf],
+    ];
+    rangos.forEach(([lbl, ini, fin]) => {
+        const p = document.createElement("p");
+        p.className = "hint";
+        p.style.color = "var(--success)";
+        p.innerHTML = `✓ <strong>${lbl}:</strong> ${fmtDate(ini)} – ${fmtDate(fin)} (${diffDays(ini, fin)} días)`;
+        cont.appendChild(p);
+    });
 }
 
 // Horarios dinamicos
@@ -814,8 +917,8 @@ function addHorario() {
     const div  = document.createElement("div");
     div.className = "horario-row";
     div.id = "hr-" + idx;
-    div.innerHTML = \`
-        <span class="horario-num">\${idx + 1}</span>
+    div.innerHTML = `
+        <span class="horario-num">${idx + 1}</span>
         <span class="horario-tag tag-nuevo">Nuevo</span>
         <div class="fg">
             <label>D&iacute;a <span class="req">*</span></label>
@@ -842,9 +945,9 @@ function addHorario() {
                 <input type="time" name="hora_fin[]" required>
             </div>
         </div>
-        <button type="button" class="btn-remove" onclick="removeHorario('hr-\${idx}')" title="Eliminar horario">
+        <button type="button" class="btn-remove" onclick="removeHorario('hr-${idx}')" title="Eliminar horario">
             <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-        </button>\`;
+        </button>`;
     list.appendChild(div);
     actualizarBotones();
 }
@@ -885,6 +988,8 @@ document.getElementById("modal-eliminar").addEventListener("click", e => {
     if (e.target === document.getElementById("modal-eliminar")) cerrarModal();
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarModal(); });
+
+validarFechas();
 </script>
 
 </body>

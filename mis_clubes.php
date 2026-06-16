@@ -71,7 +71,7 @@ try {
     $pdo = getDB();
 
     $stmt = $pdo->prepare("
-        SELECT c.id, c.nombre, c.descripcion, c.semestre, c.limite,
+        SELECT c.id, c.nombre, c.descripcion, c.semestre, c.anio, c.limite,
                c.fecha_inicio, c.fecha_fin, c.fecha_limite_registro, c.estado, c.autorizado,
                COUNT(DISTINCT ic.numero_cuenta) AS inscritos,
                CASE WHEN c.id_encargado = :id2 THEN 0 ELSE 1 END AS es_auxiliar
@@ -85,6 +85,17 @@ try {
     ");
     $stmt->execute([':id' => (int)$enc['id'], ':id2' => (int)$enc['id'], ':id3' => (int)$enc['id']]);
     $clubs = $stmt->fetchAll();
+
+    // Semestre académico actual (Feb-Jul = par, Ago-Ene = impar)
+    $mes_actual      = (int)date('n');
+    $semestre_actual = ($mes_actual >= 2 && $mes_actual <= 7) ? 'par' : 'impar';
+
+    // Vista: semestre actual (por defecto) o historial completo
+    $vista_clubs = ($_GET['vista_clubs'] ?? '') === 'historial' ? 'historial' : 'actual';
+
+    $clubs_mostrar = $vista_clubs === 'historial'
+        ? $clubs
+        : array_values(array_filter($clubs, fn($c) => $c['semestre'] === $semestre_actual));
 
     // Horarios de todos los clubs en una sola consulta
     if ($clubs) {
@@ -338,18 +349,37 @@ function clubEstado(string $estadoDB): string {
     <div class="topbar">
         <div class="topbar-left">
             <h1>Mis clubs</h1>
-            <p>Ciclo <?= date('Y') ?> &nbsp;&middot;&nbsp; <?= htmlspecialchars($enc['plantel']) ?></p>
+            <p>
+                <?php if ($vista_clubs === 'historial'): ?>
+                    Historial completo &mdash; todos los semestres y a&ntilde;os
+                <?php else: ?>
+                    Semestre <?= $semestre_actual === 'par' ? 'par (2°, 4°, 6°)' : 'impar (1°, 3°, 5°)' ?> &nbsp;&middot;&nbsp; <?= htmlspecialchars($enc['plantel']) ?>
+                <?php endif; ?>
+            </p>
         </div>
-        <a href="registrar_club.php" class="btn-nuevo">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Registrar nuevo club
-        </a>
+        <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+            <?php if ($vista_clubs === 'historial'): ?>
+            <a href="?vista_clubs=actual" class="filter-chip" style="display:inline-flex;align-items:center;gap:.35rem;text-decoration:none">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Semestre actual
+            </a>
+            <?php else: ?>
+            <a href="?vista_clubs=historial" class="filter-chip" style="display:inline-flex;align-items:center;gap:.35rem;text-decoration:none">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Historial completo
+            </a>
+            <?php endif; ?>
+            <a href="registrar_club.php" class="btn-nuevo">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Registrar nuevo club
+            </a>
+        </div>
     </div>
 
     <!-- FILTROS POR ESTADO (reemplazan las stat cards) -->
     <?php
-    $conteos_estado = ['todos'=>count($clubs),'borrador'=>0,'apertura'=>0,'iniciado'=>0,'finalizado'=>0,'cancelado'=>0];
-    foreach ($clubs as $cx) {
+    $conteos_estado = ['todos'=>count($clubs_mostrar),'borrador'=>0,'apertura'=>0,'iniciado'=>0,'finalizado'=>0,'cancelado'=>0];
+    foreach ($clubs_mostrar as $cx) {
         $est = $cx['estado'] ?? 'borrador';
         if (isset($conteos_estado[$est])) $conteos_estado[$est]++;
     }
@@ -400,13 +430,18 @@ function clubEstado(string $estadoDB): string {
     <!-- GRID -->
     <div class="clubs-grid" id="clubs-grid">
 
-    <?php if (empty($clubs)): ?>
+    <?php if (empty($clubs_mostrar)): ?>
         <div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;color:var(--gray-500)">
             <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 1rem;display:block;opacity:.4"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <?php if ($vista_clubs === 'historial'): ?>
             <p style="font-size:.95rem;font-weight:600;margin-bottom:.4rem">Aún no tienes clubs registrados</p>
             <a href="registrar_club.php" style="color:var(--accent);font-size:.85rem;font-weight:600">+ Registrar mi primer club</a>
+            <?php else: ?>
+            <p style="font-size:.95rem;font-weight:600;margin-bottom:.4rem">No tienes clubs en este semestre</p>
+            <a href="?vista_clubs=historial" style="color:var(--accent);font-size:.85rem;font-weight:600">Ver historial completo</a>
+            <?php endif; ?>
         </div>
-    <?php else: foreach ($clubs as $i => $c):
+    <?php else: foreach ($clubs_mostrar as $i => $c):
         $ins    = (int)$c['inscritos'];
         $lim    = (int)$c['limite'];
         $pct    = $lim > 0 ? round($ins/$lim*100) : 0;
@@ -475,7 +510,7 @@ function clubEstado(string $estadoDB): string {
                     </span>
                     <span style="display:flex;align-items:center;gap:.3rem">
                         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>
-                        Sem. <?= ucfirst($c['semestre']) ?>
+                        Sem. <?= ucfirst($c['semestre']) ?> <?= $c['anio'] ?>
                     </span>
                     <?php if (!empty($c['fecha_limite_registro'])): ?>
                     <span style="display:flex;align-items:center;gap:.3rem;color:var(--warning)">

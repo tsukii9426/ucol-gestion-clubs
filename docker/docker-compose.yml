@@ -1,0 +1,63 @@
+version: '3.9'
+
+services:
+
+  web:
+    build: .
+    container_name: gestion_clubs_web
+    ports:
+      - "8080:80"
+    volumes:
+      - ..:/var/www/html
+      - ./config.php:/var/www/html/config.php
+      - ./php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_NAME: ${DB_NAME:-gestion_clubs}
+      DB_USER: ${DB_USER:-clubs_user}
+      DB_PASS: ${DB_PASS}
+      BASE_URL: ${BASE_URL:-http://localhost:8080}
+      MAIL_DEMO: ${MAIL_DEMO:-true}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_FROM: ${SMTP_FROM:-}
+
+  db:
+    image: mysql:8.0
+    container_name: gestion_clubs_db
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_DATABASE: ${DB_NAME:-gestion_clubs}
+      MYSQL_USER: ${DB_USER:-clubs_user}
+      MYSQL_PASSWORD: ${DB_PASS}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASS}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: gestion_clubs_pma
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: ${DB_ROOT_PASS}
+    depends_on:
+      - db
+
+volumes:
+  db_data:

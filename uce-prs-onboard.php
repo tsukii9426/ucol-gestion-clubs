@@ -267,6 +267,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .card-top::after  { content:''; position:absolute; right:-30px; bottom:-50px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,.05); }
         .card-top::before { content:''; position:absolute; right:60px;  top:-60px;   width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,.04); }
 
+        .card-top-features { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1.1rem; position:relative; z-index:1; }
+        .card-top-features span {
+            display:inline-flex; align-items:center; gap:.3rem;
+            background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2);
+            border-radius:20px; padding:.28rem .75rem;
+            font-family:'Outfit',sans-serif; font-size:.73rem; font-weight:600;
+            color:rgba(255,255,255,.9); letter-spacing:.2px;
+        }
+
         .top-icon {
             width: 52px; height: 52px;
             background: rgba(255,255,255,.15);
@@ -419,8 +428,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         @media (max-width:520px) {
             .form-row { grid-template-columns:1fr; }
             .card-body { padding:1.4rem 1.25rem 1.5rem; }
-            .form-footer { flex-direction:column-reverse; }
+            .form-footer { flex-direction:column-reverse; gap:.6rem; }
             .btn-secondary { width:100%; }
+            .btn-primary { height:52px; font-size:.95rem; width:100%; }
+            .card-top-features { gap:.4rem; }
+            .card-top-features span { font-size:.7rem; padding:.22rem .6rem; }
         }
     </style>
 </head>
@@ -448,6 +460,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <h1>Solicitud de registro como encargado</h1>
         <p>Completa tus datos — el plantel revisará y aprobará tu solicitud</p>
+        <div class="card-top-features">
+            <span>
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                Sin papelería
+            </span>
+            <span>
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Revisión por plantel
+            </span>
+            <span>
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                Acceso inmediato al aprobarse
+            </span>
+        </div>
     </div>
 
     <div class="card-body">
@@ -744,12 +770,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- ── FOOTER ────────────────────────────── -->
             <div class="form-footer">
-                <a href="login_encargado.php" class="btn btn-secondary">Cancelar</a>
+                <a href="login_encargado.php" class="btn btn-secondary">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    Regresar
+                </a>
                 <button type="submit" class="btn btn-primary">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <line x1="22" y1="2" x2="11" y2="13"/>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                    </svg>
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     Enviar solicitud
                 </button>
             </div>
