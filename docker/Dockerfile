@@ -8,7 +8,11 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql \
 # (el contexto de build es la raíz del repo, ver docker-compose.yml)
 COPY . /var/www/html
 
-# Sobreescribir con la configuración de Docker
+# Eliminar cualquier config.php heredado del contexto — puede ser un
+# directorio basura creado por montajes previos de Docker en Windows.
+# Luego se coloca el config.php correcto de Docker.
+RUN rm -rf /var/www/html/config.php
+
 COPY docker/config.php              /var/www/html/config.php
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY docker/php/custom.ini          /usr/local/etc/php/conf.d/custom.ini
