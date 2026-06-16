@@ -6,7 +6,7 @@
  */
 
 define('DB_HOST', getenv('DB_HOST') ?: 'db');
-define('DB_NAME', getenv('DB_NAME') ?: 'gestion_clubs');
+define('DB_NAME', getenv('DB_NAME') ?: 'bachilleratos');
 define('DB_USER', getenv('DB_USER') ?: 'clubs_user');
 define('DB_PASS', getenv('DB_PASS') ?: '');
 

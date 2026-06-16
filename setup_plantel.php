@@ -9,11 +9,16 @@
  * Elimina o protege este archivo cuando el sistema esté en producción.
  */
 
-// ── Seguridad: solo localhost ────────────────────────────────────
+// ── Seguridad: solo localhost o red local privada ────────────────
+// En Docker el tráfico llega enmascarado con la IP de la gateway (172.x),
+// por eso se permiten también las redes privadas (10.x, 172.16-31.x, 192.168.x).
+// ⚠️ Elimina o renombra este archivo cuando termines de configurar los planteles.
 $ip = $_SERVER['REMOTE_ADDR'] ?? '';
-if (!in_array($ip, ['127.0.0.1', '::1', 'localhost'], true)) {
+$es_local   = in_array($ip, ['127.0.0.1', '::1', 'localhost'], true);
+$es_privada = (bool) preg_match('/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/', $ip);
+if (!$es_local && !$es_privada) {
     http_response_code(403);
-    die('❌ Acceso denegado. Esta página solo es accesible desde localhost.');
+    die('❌ Acceso denegado. Esta página solo es accesible desde la red local.');
 }
 
 require_once __DIR__ . '/db.php';

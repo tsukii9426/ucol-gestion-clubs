@@ -12,7 +12,7 @@ services:
         condition: service_healthy
     environment:
       DB_HOST: db
-      DB_NAME: ${DB_NAME:-gestion_clubs}
+      DB_NAME: ${DB_NAME:-bachilleratos}
       DB_USER: ${DB_USER:-clubs_user}
       DB_PASS: ${DB_PASS}
       BASE_URL: ${BASE_URL:-http://localhost:8080}
@@ -31,12 +31,13 @@ services:
       - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
-      MYSQL_DATABASE: ${DB_NAME:-gestion_clubs}
+      MYSQL_DATABASE: ${DB_NAME:-bachilleratos}
       MYSQL_USER: ${DB_USER:-clubs_user}
       MYSQL_PASSWORD: ${DB_PASS}
     volumes:
       - db_data:/var/lib/mysql
-      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # Esquema real de la app (fuente única de verdad)
+      - ../base_de_datos.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--silent"]
       interval: 10s
