@@ -1,5 +1,6 @@
 # Credenciales y configuración local
 config.php
+!docker/config.php
 
 # Logs con datos sensibles (correos, tokens)
 logs/
