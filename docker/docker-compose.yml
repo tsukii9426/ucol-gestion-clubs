@@ -1,15 +1,12 @@
-version: '3.9'
-
 services:
 
   web:
-    build: .
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: gestion_clubs_web
     ports:
       - "8080:80"
-    volumes:
-      - ..:/var/www/html
-      - ./php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
     depends_on:
       db:
         condition: service_healthy
