@@ -139,6 +139,34 @@ docker compose logs db      # Ver errores de la base de datos
 
 ---
 
+## Arranque automático (que la página funcione al prender la computadora)
+
+Para que el sistema se levante solo cada vez que enciendes la computadora, sin
+tener que escribir `docker compose up`, se necesitan **dos cosas**:
+
+### 1. Reinicio automático de los contenedores (ya configurado)
+
+En el `docker-compose.yml` los tres servicios tienen `restart: unless-stopped`,
+así que Docker los vuelve a levantar solos cuando arranca. Esto ya viene listo en
+el repo — solo asegúrate de haber hecho al menos un `docker compose up -d` una vez.
+
+### 2. Que Docker Desktop arranque con Windows
+
+1. Abre **Docker Desktop**.
+2. Ve al engrane ⚙️ (**Settings**) → **General**.
+3. Activa la casilla **"Start Docker Desktop when you sign in"**.
+4. Guarda (**Apply & restart**).
+
+> Con esto: al encender la computadora → Windows abre Docker Desktop → Docker
+> levanta los contenedores automáticamente → la página queda disponible en
+> `http://<IP>:8080` sin que toques nada.
+
+**Importante:** la computadora debe iniciar sesión en Windows (llegar al escritorio)
+para que Docker Desktop arranque. Si la PC tiene contraseña de Windows, conviene
+configurar el inicio de sesión automático o dejar la sesión iniciada.
+
+---
+
 ## Notas
 
 - El correo (`BASE_URL`) solo se usa para los enlaces de recuperación de contraseña.

@@ -5,6 +5,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
     container_name: gestion_clubs_web
+    restart: unless-stopped
     ports:
       - "8080:80"
     depends_on:
@@ -48,6 +49,7 @@ services:
   phpmyadmin:
     image: phpmyadmin:latest
     container_name: gestion_clubs_pma
+    restart: unless-stopped
     ports:
       - "8081:80"
     environment:
