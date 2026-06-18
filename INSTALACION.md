@@ -81,7 +81,7 @@ Esa es la dirección con la que otros dispositivos accederán. **Cada computador
 En el navegador de **esta misma computadora**, abre:
 
 ```
-http://localhost:8080/setup_plantel.php
+http://localhost:8082/setup_plantel.php
 ```
 
 Ahí puedes:
@@ -105,7 +105,7 @@ para gestionar las solicitudes de encargados.
 Cualquier celular o computadora **en la misma red WiFi/LAN** entra con la IP de esta máquina:
 
 ```
-http://192.168.1.85:8080
+http://192.168.1.85:8082
 ```
 
 (Reemplaza `192.168.1.85` por la IP real que obtuviste en el paso 5.)
@@ -119,10 +119,10 @@ http://192.168.1.85:8080
 
 | Servicio | Dirección |
 |---|---|
-| Sistema (alumnos) | `http://localhost:8080` |
-| Login de plantel | `http://localhost:8080/ucol-srvc-coord.php` |
-| Setup de planteles | `http://localhost:8080/setup_plantel.php` *(borrar tras usarlo)* |
-| phpMyAdmin (base de datos) | `http://localhost:8081` |
+| Sistema (alumnos) | `http://localhost:8082` |
+| Login de plantel | `http://localhost:8082/ucol-srvc-coord.php` |
+| Setup de planteles | `http://localhost:8082/setup_plantel.php` *(borrar tras usarlo)* |
+| phpMyAdmin (base de datos) | `http://localhost:8083` |
 
 ---
 
@@ -159,7 +159,7 @@ el repo — solo asegúrate de haber hecho al menos un `docker compose up -d` un
 
 > Con esto: al encender la computadora → Windows abre Docker Desktop → Docker
 > levanta los contenedores automáticamente → la página queda disponible en
-> `http://<IP>:8080` sin que toques nada.
+> `http://<IP>:8082` sin que toques nada.
 
 **Importante:** la computadora debe iniciar sesión en Windows (llegar al escritorio)
 para que Docker Desktop arranque. Si la PC tiene contraseña de Windows, conviene
@@ -171,6 +171,6 @@ configurar el inicio de sesión automático o dejar la sesión iniciada.
 
 - El correo (`BASE_URL`) solo se usa para los enlaces de recuperación de contraseña.
   Si los vas a usar, en `.env` pon la IP de la máquina:
-  `BASE_URL=http://192.168.1.85:8080`
+  `BASE_URL=http://192.168.1.85:8082`
 - Esto funciona en **red local** (misma WiFi). Para acceso por internet se necesitaría
   un servidor en la nube o configurar el router.

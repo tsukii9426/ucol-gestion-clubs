@@ -10,7 +10,7 @@ define('DB_NAME', getenv('DB_NAME') ?: 'bachilleratos');
 define('DB_USER', getenv('DB_USER') ?: 'clubs_user');
 define('DB_PASS', getenv('DB_PASS') ?: '');
 
-define('BASE_URL', rtrim(getenv('BASE_URL') ?: 'http://localhost:8080', '/'));
+define('BASE_URL', rtrim(getenv('BASE_URL') ?: 'http://localhost:8082', '/'));
 
 // Correo
 define('MAIL_DEMO',  filter_var(getenv('MAIL_DEMO') ?: 'true', FILTER_VALIDATE_BOOLEAN));
